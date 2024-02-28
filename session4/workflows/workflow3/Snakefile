@@ -1,0 +1,22 @@
+workdir: "../.."
+
+rule valid_session:
+    input:
+        "data/raw/session.csv"
+    output:
+        "data/processed/session_valid.csv" 
+    shell:
+        'python ../session4/scripts/extract_valid_trials.py {input[0]} {output[0]}'
+
+
+rule correct_valid_response:
+    input:
+        "data/processed/session_valid.csv" 
+    output:
+        "data/processed/session_valid_correct_response.csv"
+    
+    run:
+        import pandas as pd
+        df = pd.read_csv(input[0])
+        df_correct = df.loc[df['response'] == 1]
+        df_correct.to_csv(output[0], index=False)
