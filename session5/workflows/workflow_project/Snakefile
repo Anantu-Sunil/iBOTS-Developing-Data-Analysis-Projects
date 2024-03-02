@@ -10,15 +10,13 @@ from data_utils import merge_behavioral_data_npy, merge_behavioral_data_mat_as_n
 
 rule all:
     input:
-        "figures/steinmetz/subject-Lederberg/session-20171209/behavioral/licks.png",
-        "figures/steinmetz/subject-Lederberg/session-20171209/behavioral/face.png",
-        "figures/steinmetz/subject-Lederberg/session-20171209/behavioral/wheel_speed.png",
-        "figures/steinmetz/subject-Lederberg/session-20171209/behavioral/pupil_position.png"
+        expand("figures/steinmetz/subject-Lederberg/session-{session_id}/behavioral/{parameter}.png", session_id=[20171205, 20171209], parameter=['licks', 'face', 'wheel_speed', 'pupil_position']),
+        expand("figures/steinmetz/subject-Forssmann/session-{session_id}/behavioral/{parameter}.png", session_id=[20171105], parameter=['licks', 'face', 'wheel_speed', 'pupil_position'])
 
 
 rule generate_licks_plot:
-    input: "steinmetz_data/raw/subject-Lederberg/session-20171209/behavioral/licks"
-    output: "figures/steinmetz/subject-Lederberg/session-20171209/behavioral/licks.png"
+    input: "steinmetz_data/raw/subject-{subject_id}/session-{session_id}/behavioral/licks"
+    output: "figures/steinmetz/subject-{subject_id}/session-{session_id}/behavioral/licks.png"
     run:
         licks_data = merge_behavioral_data_npy(input[0])
         fig, ax = plt.subplots(figsize=(4, 3), dpi=150)
@@ -30,8 +28,8 @@ rule generate_licks_plot:
 
 
 rule generate_face_plot:
-    input: "steinmetz_data/raw/subject-Lederberg/session-20171209/behavioral/face"
-    output: "figures/steinmetz/subject-Lederberg/session-20171209/behavioral/face.png"
+    input: "steinmetz_data/raw/subject-{subject_id}/session-{session_id}/behavioral/face"
+    output: "figures/steinmetz/subject-{subject_id}/session-{session_id}/behavioral/face.png"
     run:
         face_data = merge_behavioral_data_npy(input[0])
         fig, ax = plt.subplots(figsize=(3, 3), dpi=150)
@@ -41,8 +39,8 @@ rule generate_face_plot:
 
 
 rule generate_wheel_speed_plot:
-    input: "steinmetz_data/raw/subject-Lederberg/session-20171209/behavioral/wheel_speed"
-    output: "figures/steinmetz/subject-Lederberg/session-20171209/behavioral/wheel_speed.png"
+    input: "steinmetz_data/raw/subject-{subject_id}/session-{session_id}/behavioral/wheel_speed"
+    output: "figures/steinmetz/subject-{subject_id}/session-{session_id}/behavioral/wheel_speed.png"
     run:
         wheel_speed_data = merge_behavioral_data_npy(input[0])
         fig, ax = plt.subplots(figsize=(4, 3), dpi=150)
@@ -52,8 +50,8 @@ rule generate_wheel_speed_plot:
         
 
 rule generate_pupil_position_plot:
-    input: "steinmetz_data/raw/subject-Lederberg/session-20171209/behavioral/pupil"
-    output: "figures/steinmetz/subject-Lederberg/session-20171209/behavioral/pupil_position.png"
+    input: "steinmetz_data/raw/subject-{subject_id}/session-{session_id}/behavioral/pupil"
+    output: "figures/steinmetz/subject-{subject_id}/session-{session_id}/behavioral/pupil_position.png"
     run:
         pupil_x_data = merge_behavioral_data_mat_as_npy(input[0], variable_name="pupil_x")
         pupil_y_data = merge_behavioral_data_mat_as_npy(input[0], variable_name="pupil_y")

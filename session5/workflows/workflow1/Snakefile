@@ -2,14 +2,50 @@ workdir: "../.."
 
 rule all:
     input:
-        "data/processed/dataset1_clean.csv",
-        "data/processed/dataset2_clean.csv"
+        #expand("data/processed/dataset{session_id}_clean.csv", session_id=[1,2]),
+        #expand("data/processed/dataset{session_id}_valid.csv", session_id=[1,2]),
+        #expand("data/processed/subject_{subject_id}/task{session_id}_valid.csv", subject_id=['one', 'two'], session_id=[1,2]),
+        expand("data/figures/subject_{subject_id}/response_time{session_id}_hist.png", subject_id=['one', 'two'], session_id=[1,2])
 
 rule clean_dataset:
     input: "data/raw/dataset{session_id}.csv"
     output: "data/processed/dataset{session_id}_clean.csv"
     run:
         import pandas as pd
-        df = pd.read_csv(input[0])              # Use indexing since 'input' can contain multiple items
-        df_clean = df.dropna()                  # remove rows with NaN values
-        df_clean.to_csv(output[0], index=False) # Use indexing since 'output' can contain multiple items
+        df = pd.read_csv(input[0])                      # Use indexing since 'input' can contain multiple items
+        df_clean = df.dropna()                          # remove rows with NaN values
+        df_clean["session_id"] = wildcards.session_id   # add session_id as a column        
+        df_clean.to_csv(output[0], index=False)         # Use indexing since 'output' can contain multiple items
+
+
+rule valid_session:
+    input: "data/raw/dataset{session_id}.csv"
+    output: "data/processed/dataset{session_id}_valid.csv"
+    run:
+        import pandas as pd
+        df = pd.read_csv(input[0])
+        df_valid = df[df.valid].copy()
+        df_valid.to_csv(output[0], index=False)
+
+
+rule valid_task:
+    input: "data/raw/subject_{subject_id}/task{session_id}.csv"
+    output: "data/processed/subject_{subject_id}/task{session_id}_valid.csv"
+    run:
+        import pandas as pd
+        df = pd.read_csv(input[0])
+        df_valid = df[df.valid].copy()
+        df_valid.to_csv(output[0], index=False)
+
+
+rule histogram:
+    input: "data/raw/subject_{subject_id}/response_time{session_id}.npy"
+    output: "data/figures/subject_{subject_id}/response_time{session_id}_hist.png"
+    run:
+        import numpy as np
+        import matplotlib.pyplot as plt
+        colors = {'one':'r', 'two':'b'}
+        subject_id = wildcards.subject_id
+        data = np.load(input[0])
+        plt.hist(data, color=colors[subject_id])
+        plt.savefig(output[0])
